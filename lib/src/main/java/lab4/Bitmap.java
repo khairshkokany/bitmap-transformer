@@ -4,11 +4,8 @@
 package lab4;
 
 import javax.imageio.ImageIO;
-import javax.swing.*;
 import java.awt.*;
-import java.awt.color.ColorSpace;
 import java.awt.image.BufferedImage;
-import java.awt.image.ColorConvertOp;
 import java.io.File;
 import java.io.IOException;
 
@@ -53,81 +50,6 @@ public void savedImage(BufferedImage newImg) throws IOException {
 }
 
 
-    public void TestBlackAndWhite() throws IOException {
-        EventQueue.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-                } catch (Exception ex) {
-                    System.out.println(ex);
-                }
-
-                JFrame frame = new JFrame("Test");
-                frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-                frame.add(new TestPane());
-                frame.pack();
-                frame.setLocationRelativeTo(null);
-                frame.setVisible(true);
-
-            }
-        });
-
-    this.savedImage(image);
-
-    }
-
-    public class TestPane extends JPanel {
-
-//        private BufferedImage master;
-//        private BufferedImage grayScale;
-//        private BufferedImage blackWhite;
-
-        public TestPane() {
-            try {
-                image = ImageIO.read(new File("C:\\Users\\STUDENT\\401class\\bitmap-transformer\\resources\\lab04.bmp"));
-                ColorConvertOp op = new ColorConvertOp(ColorSpace.getInstance(ColorSpace.CS_GRAY), null);
-                op.filter(image, image);
-
-                image = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_BYTE_BINARY);
-                Graphics2D g2d = image.createGraphics();
-                g2d.drawImage(image, 0, 0, this);
-                g2d.dispose();
-
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            }
-        }
-
-        @Override
-        public Dimension getPreferredSize() {
-            Dimension size = super.getPreferredSize();
-            if (image != null) {
-                size = new Dimension(image.getWidth() * 3, image.getHeight());
-            }
-            return size;
-        }
-
-        @Override
-        protected void paintComponent(Graphics g) {
-            super.paintComponent(g);
-            if (image != null) {
-
-                int x = (getWidth() - (image.getWidth() * 3)) / 2;
-                int y = (getHeight() - image.getHeight()) / 2;
-
-                g.drawImage(image, x, y, this);
-                x += image.getWidth();
-                g.drawImage(image, x, y, this);
-                x += image.getWidth();
-                g.drawImage(image, x, y, this);
-
-            }
-        }
-
-
-    }
-
     public BufferedImage transformGrey() throws IOException {
         BufferedImage grey = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_BYTE_GRAY);
         Graphics modifications = grey.getGraphics();
@@ -135,6 +57,16 @@ public void savedImage(BufferedImage newImg) throws IOException {
         modifications.dispose();
         this.savedImage(grey);
         return grey;
+    }
+    public void reverseImageHorizontally() throws IOException {
+        for (int i = 0; i < this.image.getHeight() / 2; i++) {
+            for (int j = 0; j < this.image.getWidth(); j++) {
+                int temp = this.image.getRGB(i, j);
+                this.image.setRGB(i, j, this.image.getRGB(this.image.getWidth() - i - 1, j));
+                this.image.setRGB(this.image.getWidth() - i - 1, j, temp);
+            }
+        }
+        this.savedImage(image);
     }
     public void reverseImageVertically() throws IOException {
 
@@ -147,42 +79,7 @@ public void savedImage(BufferedImage newImg) throws IOException {
         }
         this.savedImage(image);
     }
-    public boolean edgeColor() throws IOException {
-        boolean hasChanged = false;
-        for (int i = 0; i < image.getWidth(); i++) {
-            for (int j = 0; j < image.getHeight(); j++) {
-                int color = image.getRGB(i, j);
-                System.out.println(color);
-                if (color == -16777216) {
-                    image.setRGB(i, j, Color.GREEN.getRGB());
-                    hasChanged = true;
-                }
-            }
-        }
-        this.savedImage(this.image);
-        return hasChanged;
 
-    }
-    public  BufferedImage blur() throws IOException {
-
-        BufferedImage result = new BufferedImage(image.getWidth(), image.getHeight(), image.getType()) ;
-        final int H = image.getHeight() - 1 ;
-        final int W = image.getWidth() - 1 ;
-
-        for (int c=0 ; c < image.getRaster().getNumBands() ; c++) // for all the channels/bands
-            for (int x=1 ; x < W ; x++) // For all the image
-                for (int y=1; y < H ; y++)
-                {
-                    int newPixel = 0 ;
-                    for (int i=-1 ; i <= 1 ; i++) // For the neighborhood
-                        for (int j=-1 ; j <= 1 ; j++)
-                            newPixel += image.getRaster().getSample(x+i, y+j, c) ;
-                    newPixel = (int)(newPixel/12.0 + 1) ;
-                    result.getRaster().setSample(x, y, c, newPixel) ;
-                }
-        this.savedImage(result);
-        return result;
-    }
 
 
 
