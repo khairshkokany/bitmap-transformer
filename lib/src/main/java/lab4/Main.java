@@ -24,5 +24,7 @@ public class Main {
         image4.reverseImageHorizontally();
         image5.reverseImageVertically();
 
+        System.out.println("finished bitmap with 3 methods");
+
     }
 }
